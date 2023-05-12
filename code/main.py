@@ -3,10 +3,10 @@ from settings import *
 from level import Level
 from ui import UI
 
-ui2 = UI(screen)
 # Pygame setup
 pygame.init()
 screen = pygame.display.set_mode((screen_width,screen_height))
+ui2 = UI(screen)
 clock = pygame.time.Clock()
 level = Level(level_map,screen)
 
@@ -21,7 +21,9 @@ while True:
 			sys.exit()
 	
 	#screen.fill('black')
+	# pygame.draw.rect(self.display_surface, 'green', (20,10, 100, 10))
 	level.run()
+	ui2.show_health()
 
 	pygame.display.update()
 	clock.tick(60)
