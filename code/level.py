@@ -116,6 +116,12 @@ class Level:
 		self.dust_sprite.update(self.world_shift)
 		self.dust_sprite.draw(self.display_surface)
 
+		background = pygame.image.load('../graphics/Background/background.png').convert()
+		background = pygame.transform.scale_by(background, 3)
+		bg_rect = background.get_rect(topleft=(0,0))
+		bg_rect.x += self.world_shift
+		self.display_surface.blit(background, bg_rect)
+
 		# level tiles
 		self.tiles.update(self.world_shift)
 		self.tiles.draw(self.display_surface)
