@@ -1,5 +1,5 @@
 import pygame 
-from tiles import Tile 
+from tiles import Tile
 from settings import tile_size, screen_width
 from player import Player
 from particles import ParticleEffect
@@ -16,6 +16,12 @@ class Level:
 		# dust 
 		self.dust_sprite = pygame.sprite.GroupSingle()
 		self.player_on_ground = False
+
+		# background
+		self.bg_shift = 0
+		bg = pygame.image.load('../graphics/Background/background.png').convert()
+		self.bg = pygame.transform.scale(bg, (bg.get_width() * 4, bg.get_height() * 2))
+		self.bg_rect = bg.get_rect(topleft=(0, 0))
 
 	def create_jump_particles(self,pos):
 		if self.player.sprite.facing_right:
@@ -62,14 +68,20 @@ class Level:
 		direction_x = player.direction.x
 
 		if player_x < screen_width / 4 and direction_x < 0:
+			self.bg_shift = 2
 			self.world_shift = 8
 			player.speed = 0
 		elif player_x > screen_width - (screen_width / 4) and direction_x > 0:
+			self.bg_shift = -2
 			self.world_shift = -8
 			player.speed = 0
 		else:
+			self.bg_shift = 0
 			self.world_shift = 0
 			player.speed = 8
+
+	def bg_update(self):
+		self.bg_rect.x += self.bg_shift
 
 	def horizontal_movement_collision(self):
 		player = self.player.sprite
@@ -117,6 +129,8 @@ class Level:
 		self.dust_sprite.draw(self.display_surface)
 
 		# level tiles
+		self.bg_update()
+		self.display_surface.blit(self.bg, self.bg_rect)
 		self.tiles.update(self.world_shift)
 		self.tiles.draw(self.display_surface)
 		self.scroll_x()
