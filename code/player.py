@@ -6,6 +6,8 @@ class Player(pygame.sprite.Sprite):
 		super().__init__()
 		self.import_character_assets()
 		self.frame_index = 0
+		self.attack_frame_index = 0
+		self.attack_scene = False
 		self.animation_speed = 0.15
 		self.image = self.animations['idle'][self.frame_index]
 		self.rect = self.image.get_rect(topleft = pos)
@@ -45,9 +47,15 @@ class Player(pygame.sprite.Sprite):
 
 	def animate(self):
 		animation = self.animations[self.status]
-
-		# loop over frame index
 		self.frame_index += self.animation_speed
+		if self.status == 'attack':
+			self.attack_scene = True
+			done = self.attack_animation(animation)
+			if not done:
+				return
+			else:
+				self.attack_frame_index = 0
+				self.attack_scene = False
 		if self.frame_index >= len(animation):
 			self.frame_index = 0
 
@@ -55,22 +63,38 @@ class Player(pygame.sprite.Sprite):
 		if self.facing_right:
 			self.image = image
 		else:
-			flipped_image = pygame.transform.flip(image,True,False)
+			flipped_image = pygame.transform.flip(image, True, False)
 			self.image = flipped_image
 
 		# set the rect
 		if self.on_ground and self.on_right:
-			self.rect = self.image.get_rect(bottomright = self.rect.bottomright)
+			self.rect = self.image.get_rect(bottomright=self.rect.bottomright)
 		elif self.on_ground and self.on_left:
-			self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
+			self.rect = self.image.get_rect(bottomleft=self.rect.bottomleft)
 		elif self.on_ground:
-			self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
+			self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
 		elif self.on_ceiling and self.on_right:
-			self.rect = self.image.get_rect(topright = self.rect.topright)
+			self.rect = self.image.get_rect(topright=self.rect.topright)
 		elif self.on_ceiling and self.on_left:
-			self.rect = self.image.get_rect(topleft = self.rect.topleft)
+			self.rect = self.image.get_rect(topleft=self.rect.topleft)
 		elif self.on_ceiling:
-			self.rect = self.image.get_rect(midtop = self.rect.midtop)
+			self.rect = self.image.get_rect(midtop=self.rect.midtop)
+
+	def attack_animation(self, frame):
+		self.attack_frame_index += self.animation_speed
+		if self.attack_frame_index > len(frame):
+			return True
+		image = frame[int(self.attack_frame_index)]
+		if self.facing_right:
+			self.image = image
+		else:
+			flipped_image = pygame.transform.flip(image, True, False)
+			self.image = flipped_image
+
+		self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+		return False
+
+
 
 	def run_dust_animation(self):
 		if self.status == 'run' and self.on_ground:
@@ -130,6 +154,7 @@ class Player(pygame.sprite.Sprite):
 	def update(self):
 		self.get_input()
 		self.get_status()
+		if self.attack_scene:
+			self.status = 'attack'
 		self.animate()
 		self.run_dust_animation()
-		

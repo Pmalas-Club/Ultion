@@ -11,6 +11,7 @@ class ParticleEffect(pygame.sprite.Sprite):
 		if type == 'land':
 			self.frames = import_folder('../graphics/character/dust_particles/land')
 		self.image = self.frames[self.frame_index]
+		#self.image = pygame.transform.scale(image,(image.get_width(), image.get_height() / 3))
 		self.rect = self.image.get_rect(center = pos)
 
 	def animate(self):
