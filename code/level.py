@@ -1,8 +1,10 @@
 import pygame 
-from tiles import Tile
+from tiles import Tile, StaticTile, Enemy
 from settings import tile_size, screen_width
 from player import Player
 from particles import ParticleEffect
+# from enemy import Enemy
+from support import import_csv_layout, import_cut_graphics
 
 class Level:
 	def __init__(self,level_data,surface):
@@ -12,6 +14,12 @@ class Level:
 		self.setup_level(level_data)
 		self.world_shift = 0
 		self.current_x = 0
+
+		# terrain setup
+		terrain_layout = import_csv_layout(level_data['terrain'])
+		self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
+		enemy_layout = import_csv_layout(level_data['enemy'])
+		self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
 
 		# dust 
 		self.dust_sprite = pygame.sprite.GroupSingle()
@@ -46,9 +54,36 @@ class Level:
 			fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset,'land')
 			self.dust_sprite.add(fall_dust_particle)
 
+	def create_tile_group(self,layout,type):
+		sprite_group = pygame.sprite.Group()
+
+		for row_index,row in enumerate(layout):
+			for col_index,val in enumerate(row):
+				if val != '-1':
+					x = int(col_index * tile_size)
+					y = int(row_index * tile_size)
+
+					if type == 'terrain':
+						# sprite = Tile(tile_size,x,y,self.display_surface)
+						# sprite_group.add(sprite)
+						terrain_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy_-_TileSet_edited.png')
+						tile_surface = terrain_tile_list[int(val)]
+						sprite = StaticTile(tile_size, x, y, tile_surface)
+
+					if type == 'enemy':
+						# terrain_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy_-_TileSet_edited.png')
+						# tile_surface = terrain_tile_list[int(val)]
+						# sprite = StaticTile(tile_size, int(x), int(y), tile_surface)
+						sprite = Enemy(tile_size,x,y)
+
+
+					sprite_group.add(sprite)
+		return sprite_group
+
 	def setup_level(self,layout):
 		self.tiles = pygame.sprite.Group()
 		self.player = pygame.sprite.GroupSingle()
+		self.enemies = pygame.sprite.Group()
 
 		for row_index,row in enumerate(layout):
 			for col_index,cell in enumerate(row):
@@ -61,6 +96,9 @@ class Level:
 				if cell == 'P':
 					player_sprite = Player((x,y),self.display_surface,self.create_jump_particles)
 					self.player.add(player_sprite)
+				if cell == 'Q':
+					enemy_sprite = Enemy((x,y+75))
+					self.enemies.add(enemy_sprite)
 
 	def scroll_x(self):
 		player = self.player.sprite
@@ -123,23 +161,37 @@ class Level:
 		if player.on_ceiling and player.direction.y > 0.1:
 			player.on_ceiling = False
 
+	def enemy_collision(self):
+			player = self.player.sprite
+			for enemy in self.enemies.sprites():
+				enemy.animate()
+				if enemy.rect.colliderect(player) and player.status == 'attack':
+					enemy.kill()
+
 	def run(self):
 		# dust particles 
-		self.dust_sprite.update(self.world_shift)
-		self.dust_sprite.draw(self.display_surface)
+		# self.dust_sprite.update(self.world_shift)
+		# self.dust_sprite.draw(self.display_surface)
 
 		# level tiles
 		self.bg_update()
 		self.display_surface.blit(self.bg, self.bg_rect)
-		self.tiles.update(self.world_shift)
-		self.tiles.draw(self.display_surface)
-		self.scroll_x()
+		# self.tiles.update(self.world_shift)
+		# self.tiles.draw(self.display_surface)
+		# self.scroll_x()
 
+		self.terrain_sprites.draw(self.display_surface)
+		self.terrain_sprites.update(self.world_shift)
+		self.enemy_sprites.draw(self.display_surface)
 
 		# player
-		self.player.update()
-		self.horizontal_movement_collision()
-		self.get_player_on_ground()
-		self.vertical_movement_collision()
-		self.create_landing_dust()
-		self.player.draw(self.display_surface)
+		# self.player.update()
+		# self.horizontal_movement_collision()
+		# self.get_player_on_ground()
+		# self.vertical_movement_collision()
+		# self.create_landing_dust()
+		# self.player.draw(self.display_surface)
+
+		# self.enemy_collision()
+		# self.enemies.update(self.world_shift)
+		# self.enemies.draw(self.display_surface)

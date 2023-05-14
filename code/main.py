@@ -3,13 +3,15 @@ from settings import *
 from level import Level
 from player import Player
 from ui import UI
+from game_data import level_0
 
 # Pygame setup
 pygame.init()
 screen = pygame.display.set_mode((screen_width,screen_height))
-ui2 = UI(screen)
+# ui2 = UI(screen)
 clock = pygame.time.Clock()
-level = Level(level_map,screen)
+# level = Level(level_map,screen)
+level = Level(level_0,screen)
 
 
 #game_active = False
@@ -27,7 +29,7 @@ while True:
 	#screen.fill('black')
 	#if game_active:
 	level.run()
-	ui2.show_health()
+	# ui2.show_health()
 	# else:
 	# 	screen.fill((94, 129, 162))
 	# 	screen.blit(player_stand, player_stand_rectangle)
