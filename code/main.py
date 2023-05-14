@@ -14,7 +14,7 @@ clock = pygame.time.Clock()
 level = Level(level_0,screen)
 
 
-#game_active = False
+# game_active = False
 
 while True:
 	for event in pygame.event.get():

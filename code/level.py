@@ -1,9 +1,9 @@
 import pygame 
-from tiles import Tile, StaticTile, Enemy
+from tiles import Tile, StaticTile, AnimatedTile # Enemy
 from settings import tile_size, screen_width
 from player import Player
 from particles import ParticleEffect
-# from enemy import Enemy
+from enemy import Enemy
 from support import import_csv_layout, import_cut_graphics
 
 class Level:
@@ -11,22 +11,31 @@ class Level:
 		
 		# level setup
 		self.display_surface = surface 
-		self.setup_level(level_data)
-		self.world_shift = 0
+		# self.setup_level(level_data)
+		self.world_shift = -2
 		self.current_x = 0
 
 		# terrain setup
 		terrain_layout = import_csv_layout(level_data['terrain'])
 		self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
+
+		# enemy setup
 		enemy_layout = import_csv_layout(level_data['enemy'])
 		self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
+
+		# enemy_layout = import_csv_layout(level_data['enemy'])
+		# self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
+
+		# player
+		player_layout = import_csv_layout(level_data['player'])
+		self.player_sprites = self.create_tile_group(player_layout, 'player')
 
 		# dust 
 		self.dust_sprite = pygame.sprite.GroupSingle()
 		self.player_on_ground = False
 
 		# background
-		self.bg_shift = 0
+		self.bg_shift = -1
 		bg = pygame.image.load('../graphics/Background/background.png').convert()
 		self.bg = pygame.transform.scale(bg, (bg.get_width() * 4, bg.get_height() * 2))
 		self.bg_rect = bg.get_rect(topleft=(0, 0))
@@ -76,29 +85,32 @@ class Level:
 						# sprite = StaticTile(tile_size, int(x), int(y), tile_surface)
 						sprite = Enemy(tile_size,x,y)
 
+					if type == 'player':
+						sprite = AnimatedTile(tile_size, x, y, '../graphics/character/idle')
+
 
 					sprite_group.add(sprite)
 		return sprite_group
 
-	def setup_level(self,layout):
-		self.tiles = pygame.sprite.Group()
-		self.player = pygame.sprite.GroupSingle()
-		self.enemies = pygame.sprite.Group()
-
-		for row_index,row in enumerate(layout):
-			for col_index,cell in enumerate(row):
-				x = col_index * tile_size
-				y = row_index * tile_size
-				
-				if cell == 'X':
-					tile = Tile((x,y),tile_size)
-					self.tiles.add(tile)
-				if cell == 'P':
-					player_sprite = Player((x,y),self.display_surface,self.create_jump_particles)
-					self.player.add(player_sprite)
-				if cell == 'Q':
-					enemy_sprite = Enemy((x,y+75))
-					self.enemies.add(enemy_sprite)
+	# def setup_level(self,layout):
+	# 	self.tiles = pygame.sprite.Group()
+	# 	self.player = pygame.sprite.GroupSingle()
+	# 	self.enemies = pygame.sprite.Group()
+	#
+	# 	for row_index,row in enumerate(layout):
+	# 		for col_index,cell in enumerate(row):
+	# 			x = col_index * tile_size
+	# 			y = row_index * tile_size
+	#
+	# 			if cell == 'X':
+	# 				tile = Tile((x,y),tile_size)
+	# 				self.tiles.add(tile)
+	# 			if cell == 'P':
+	# 				player_sprite = Player((x,y),self.display_surface,self.create_jump_particles)
+	# 				self.player.add(player_sprite)
+	# 			if cell == 'Q':
+	# 				enemy_sprite = Enemy((x,y+75))
+	# 				self.enemies.add(enemy_sprite)
 
 	def scroll_x(self):
 		player = self.player.sprite
@@ -182,7 +194,14 @@ class Level:
 
 		self.terrain_sprites.draw(self.display_surface)
 		self.terrain_sprites.update(self.world_shift)
+
+
 		self.enemy_sprites.draw(self.display_surface)
+		self.enemy_sprites.update(self.world_shift)
+
+
+		self.player_sprites.draw(self.display_surface)
+		self.player_sprites.update(self.world_shift)
 
 		# player
 		# self.player.update()
