@@ -1,6 +1,7 @@
 import pygame
 from tiles import AnimatedTile
 from random import randint
+from support import import_folder
 
 class Enemy(AnimatedTile):
 	def __init__(self, size, x, y):
@@ -8,6 +9,8 @@ class Enemy(AnimatedTile):
 			self.rect.y -= size
 			self.speed = randint(2,5)
 			self.fix_pos_x = x 
+			self.follow_pos_x = 0
+			self.status = 'idle'
 			
 	def move(self):
 		self.rect.x += self.speed
@@ -22,7 +25,9 @@ class Enemy(AnimatedTile):
 	def patrol(self):
 		if self.rect.x > self.fix_pos_x + 100 or self.rect.x < self.fix_pos_x - 100:
 			self.reverce()
-     
+
+	def attack_animation(self):
+		self.frames = import_folder('../graphics/Bandit/Attack')
 
 	def update(self, shift):
 		self.rect.x += shift

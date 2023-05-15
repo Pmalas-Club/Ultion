@@ -24,6 +24,13 @@ start_instruction = instruction_font.render('START!', False, 'black')
 start_instruction_rect = start_instruction.get_rect(center=(400,450))
 exit_instruction = instruction_font.render('EXIT', False, 'black')
 exit_instruction_rect = exit_instruction.get_rect(center=(400,600))
+
+# WALLPAPER
+wallpaper = pygame.image.load('../graphics/wallpaper/wallpaper.jpg').convert()
+wallpaper = pygame.transform.scale_by(wallpaper, 1.7)
+wallpaper_rect = wallpaper.get_rect(topleft=(0,0))
+
+
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -41,7 +48,7 @@ while True:
 		level.run()
 	# ui2.show_health()
 	else:
-		screen.fill((94, 129, 162))
+		screen.blit(wallpaper,wallpaper_rect)
 		screen.blit(title, title_rect)
 		# if finale_score != 0:
 		# 	final_score(finale_score)

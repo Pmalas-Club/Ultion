@@ -31,9 +31,6 @@ class Level:
 		enemy_layout = import_csv_layout(level_data['enemy'])
 		self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
 
-		# enemy_layout = import_csv_layout(level_data['enemy'])
-		# self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
-
 		# background
 		self.bg_shift = 0
 		bg = pygame.image.load('../graphics/Background/background.png').convert()
@@ -171,10 +168,23 @@ class Level:
 			player = self.player.sprite
 			for enemy in self.enemy_sprites.sprites():
 				#enemy.animate()
+				if enemy.rect.colliderect(player):
+					enemy.attack_animation()
+
 				if enemy.rect.colliderect(player) and player.status == 'attack':
 					# print(player.attack_frame_index)
 					if player.attack_frame_index >= 2:
 						enemy.kill()
+      
+      
+
+	# def enemy_follow(self):
+	# 		player = self.player.sprite
+	# 		for enemy in self.enemy_sprites.sprites():
+	# 			#enemy.animate()
+	# 			if enemy.fix_pos_x + 100 >= player.rect.x or enemy.fix_pos_x - 100 <= player.rect.x:
+	# 				enemy.fix_pos_x = player.rect.x
+     
 
 	def run(self):
 		# dust particles 
@@ -191,6 +201,7 @@ class Level:
 		self.terrain_sprites.draw(self.display_surface)
 
 		self.enemy_sprites.update(self.world_shift)
+		#self.enemy_follow()
 		self.enemy_sprites.draw(self.display_surface)
 
 		self.dust_sprite.update(self.world_shift)
