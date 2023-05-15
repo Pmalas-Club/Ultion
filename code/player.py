@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
 		self.attack_scene = False
 		self.animation_speed = 0.15
 		self.image = self.animations['idle'][self.frame_index]
-		self.rect = self.image.get_rect(topleft = pos)
+		self.rect = self.image.get_rect(bottomleft = pos)
 		
 		# dust particles 
 		self.import_dust_run_particles()

@@ -28,6 +28,7 @@ class AnimatedTile(Tile):
 		self.frames = import_folder(path)
 		self.frame_index = 0
 		self.image = self.frames[self.frame_index]
+		
 
 	def animation(self):
 		self.frame_index += 0.15

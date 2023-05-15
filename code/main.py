@@ -1,5 +1,5 @@
 import pygame, sys
-from settings import * 
+from settings import screen_width, screen_height
 from level import Level
 from player import Player
 from ui import UI
