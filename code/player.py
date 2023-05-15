@@ -82,6 +82,7 @@ class Player(pygame.sprite.Sprite):
 
 	def attack_animation(self, frame):
 		self.attack_frame_index += self.animation_speed
+		# print(self.attack_frame_index)
 		if self.attack_frame_index > len(frame):
 			return True
 		image = frame[int(self.attack_frame_index)]

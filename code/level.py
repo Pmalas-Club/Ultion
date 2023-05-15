@@ -169,10 +169,12 @@ class Level:
 
 	def enemy_collision(self):
 			player = self.player.sprite
-			for enemy in self.enemies.sprites():
-				enemy.animate()
+			for enemy in self.enemy_sprites.sprites():
+				#enemy.animate()
 				if enemy.rect.colliderect(player) and player.status == 'attack':
-					enemy.kill()
+					# print(player.attack_frame_index)
+					if player.attack_frame_index >= 2:
+						enemy.kill()
 
 	def run(self):
 		# dust particles 
@@ -200,6 +202,7 @@ class Level:
 		self.get_player_on_ground()
 		self.vertical_movement_collision()
 		self.create_landing_dust()
+		self.enemy_collision()
 
 		self.scroll_x()
 		self.player.draw(self.display_surface)
@@ -212,6 +215,5 @@ class Level:
 		# self.vertical_movement_collision()
 		# self.player.draw(self.display_surface)
 
-		# self.enemy_collision()
 		# self.enemies.update(self.world_shift)
 		# self.enemies.draw(self.display_surface)
