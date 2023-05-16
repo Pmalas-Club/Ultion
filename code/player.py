@@ -2,15 +2,20 @@ import pygame
 from support import import_folder
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self,pos,surface,create_jump_particles):
+	def __init__(self,pos,surface,create_jump_particles, max_hp):
 		super().__init__()
 		self.import_character_assets()
+		self.max_hp = max_hp
+		self.hp = max_hp
+
 		self.frame_index = 0
 		self.attack_frame_index = 0
 		self.attack_scene = False
+		self.hurt_frame_index = 0
+		self.hurt_scene = False
 		self.animation_speed = 0.15
 		self.image = self.animations['idle'][self.frame_index]
-		self.rect = self.image.get_rect(bottomleft = pos)
+		self.rect = self.image.get_rect(center = pos)
 		
 		# dust particles 
 		self.import_dust_run_particles()
@@ -36,7 +41,7 @@ class Player(pygame.sprite.Sprite):
 
 	def import_character_assets(self):
 		character_path = '../graphics/character/'
-		self.animations = {'idle':[],'run':[],'jump':[],'fall':[], 'attack':[]}
+		self.animations = {'idle':[],'run':[],'jump':[],'fall':[], 'attack':[], 'Hurt':[]}
 
 		for animation in self.animations.keys():
 			full_path = character_path + animation
@@ -56,6 +61,20 @@ class Player(pygame.sprite.Sprite):
 			else:
 				self.attack_frame_index = 0
 				self.attack_scene = False
+				self.frame_index = 0
+				return
+
+		if self.hurt_scene:		
+			self.status = 'Hurt'
+			done = self.hurt_animation(animation)
+			if not done:
+				return
+			else:
+				self.hurt_frame_index = 0
+				self.hurt_scene = False
+				self.status = 'idle'
+				self.frame_index = 0
+				return
 		if self.frame_index >= len(animation):
 			self.frame_index = 0
 
@@ -81,8 +100,7 @@ class Player(pygame.sprite.Sprite):
 			self.rect = self.image.get_rect(midtop=self.rect.midtop)
 
 	def attack_animation(self, frame):
-		self.attack_frame_index += self.animation_speed
-		# print(self.attack_frame_index)
+		self.attack_frame_index += 0.15
 		if self.attack_frame_index > len(frame):
 			return True
 		image = frame[int(self.attack_frame_index)]
@@ -95,7 +113,19 @@ class Player(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
 		return False
 
+	def hurt_animation(self, frame):
+		self.hurt_frame_index += 0.15
+		if self.hurt_frame_index > len(frame):
+			return True
+		image = frame[int(self.hurt_frame_index)]
+		if self.facing_right:
+			self.image = image
+		else:
+			flipped_image = pygame.transform.flip(image, True, False)
+			self.image = flipped_image
 
+		self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+		return False
 
 	def run_dust_animation(self):
 		if self.status == 'run' and self.on_ground:
@@ -141,6 +171,8 @@ class Player(pygame.sprite.Sprite):
 				self.status = 'run'
 			elif self.set_attack:
 				self.status = 'attack'
+			elif self.hurt_scene:
+				self.status = 'Hurt'
 			else:
 				self.status = 'idle'
 

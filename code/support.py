@@ -11,7 +11,6 @@ def import_folder(path):
 			full_path = path + '/' + image
 			image_surf = pygame.image.load(full_path).convert_alpha()
 			image_surf = pygame.transform.scale(image_surf, (image_surf.get_width() * 3, image_surf.get_height() * 3))
-			image_surf = image_surf
 			surface_list.append(image_surf)
 
 	return surface_list
@@ -30,8 +29,9 @@ def import_cut_graphics(path):
 	tile_num_y = int(surface.get_size()[1] / tile_size)
 
 	cut_tiles = []
-	for row in range(tile_num_x):
-		for col in range(tile_num_y):
+	# i = 0
+	for row in range(tile_num_y):
+		for col in range(tile_num_x):
 			x = col * tile_size
 			y = row * tile_size
 			new_surf = pygame.Surface((tile_size,tile_size),flags = pygame.SRCALPHA)

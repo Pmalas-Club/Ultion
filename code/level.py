@@ -1,10 +1,11 @@
 import pygame 
-from tiles import Tile, StaticTile, AnimatedTile # Enemy
-from settings import tile_size, screen_width
+from tiles import StaticTile
+from settings import tile_size, screen_width, screen_height
 from player import Player
 from particles import ParticleEffect
 from enemy import Enemy
 from support import import_csv_layout, import_cut_graphics
+from ui import HealthBar
 
 class Level:
 	def __init__(self,level_data,surface):
@@ -18,7 +19,7 @@ class Level:
 		self.player = pygame.sprite.GroupSingle()
 		self.goal = pygame.sprite.GroupSingle()
 		self.player_setup(player_layout)
-  
+
 		# dust 
 		self.dust_sprite = pygame.sprite.GroupSingle()
 		self.player_on_ground = False
@@ -41,9 +42,9 @@ class Level:
 
 	def create_jump_particles(self,pos):
 		if self.player.sprite.facing_right:
-			pos -= pygame.math.Vector2(10,5)
+			pos -= pygame.math.Vector2(10,35)
 		else:
-			pos += pygame.math.Vector2(10,-5)
+			pos += pygame.math.Vector2(10,-35)
 		jump_particle_sprite = ParticleEffect(pos,'jump')
 		self.dust_sprite.add(jump_particle_sprite)
 
@@ -56,9 +57,9 @@ class Level:
 	def create_landing_dust(self):
 		if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
 			if self.player.sprite.facing_right:
-				offset = pygame.math.Vector2(10,15)
+				offset = pygame.math.Vector2(10,50)
 			else:
-				offset = pygame.math.Vector2(-10,15)
+				offset = pygame.math.Vector2(-10,50)
 			fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset,'land')
 			self.dust_sprite.add(fall_dust_particle)
 
@@ -68,13 +69,15 @@ class Level:
 				x = int(col_index * tile_size)
 				y = int(row_index * tile_size)
 				if val == '0':
-					sprite = Player((x,y), self.display_surface, self.create_jump_particles)
+					sprite = Player((x,y), self.display_surface, self.create_jump_particles, 100)
 					self.player.add(sprite)
+					self.health_bar = HealthBar(100, 50, sprite.hp, sprite.max_hp)
 				elif val == '1':
-					v_surface = pygame.image.load('../graphics/Icons/victory.png').convert_alpha()
+					v_surface = pygame.image.load('../graphics/Icons/goal.png').convert_alpha()
 					sprite = StaticTile(tile_size, x, y, v_surface)
+					sprite.image = pygame.transform.scale(sprite.image, (sprite.image.get_width() / 8, sprite.image.get_height() / 8))
 					self.goal.add(sprite)
-					
+
 	def create_tile_group(self,layout,type):
 		sprite_group = pygame.sprite.Group()
 
@@ -85,20 +88,12 @@ class Level:
 					y = int(row_index * tile_size)
 
 					if type == 'terrain':
-						# sprite = Tile(tile_size,x,y,self.display_surface)
-						# sprite_group.add(sprite)
 						terrain_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy_-_TileSet_edited.png')
 						tile_surface = terrain_tile_list[int(val)]
 						sprite = StaticTile(tile_size, x, y, tile_surface)
 
 					if type == 'enemy':
-						# terrain_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy_-_TileSet_edited.png')
-						# tile_surface = terrain_tile_list[int(val)]
-						# sprite = StaticTile(tile_size, int(x), int(y), tile_surface)
-						sprite = Enemy(tile_size,x,y)
-
-					if type == 'player':
-						sprite = AnimatedTile(tile_size, x, y, '../graphics/character/idle')
+						sprite = Enemy(tile_size,x,y,10)
 
 					sprite_group.add(sprite)
 		return sprite_group
@@ -167,41 +162,44 @@ class Level:
 	def enemy_collision(self):
 			player = self.player.sprite
 			for enemy in self.enemy_sprites.sprites():
-				#enemy.animate()
 				if enemy.rect.colliderect(player):
 					enemy.attack_animation()
+				
+				if enemy.status == 'attack':
+					if (enemy.rect.centerx + 100) <= player.rect.centerx or (enemy.rect.centerx - 100) >= player.rect.centerx:
+						enemy.idle_animation()
 
 				if enemy.rect.colliderect(player) and player.status == 'attack':
-					# print(player.attack_frame_index)
 					if player.attack_frame_index >= 2:
-						enemy.kill()
-      
-      
+						enemy.death_animation()
+						if int(enemy.frame_index) == 3:
+							enemy.kill()
 
-	# def enemy_follow(self):
-	# 		player = self.player.sprite
-	# 		for enemy in self.enemy_sprites.sprites():
-	# 			#enemy.animate()
-	# 			if enemy.fix_pos_x + 100 >= player.rect.x or enemy.fix_pos_x - 100 <= player.rect.x:
-	# 				enemy.fix_pos_x = player.rect.x
-     
+	def finish(self):
+		if self.goal.sprite.rect.colliderect(self.player.sprite):
+			if not self.enemy_sprites:
+				return True
+		else:
+			return False
+
+	def lose(self):
+		player = self.player.sprite
+		if player.rect.y > screen_height or player.hp < 1:
+			return True
+		else:
+			return False
 
 	def run(self):
-		# dust particles 
-		# self.dust_sprite.update(self.world_shift)
-		# self.dust_sprite.draw(self.display_surface)
-
 		# level tiles
 		self.bg_update()
 		self.display_surface.blit(self.bg, self.bg_rect)
-		# self.tiles.update(self.world_shift)
-		# self.tiles.draw(self.display_surface)
 
 		self.terrain_sprites.update(self.world_shift)
 		self.terrain_sprites.draw(self.display_surface)
-
-		self.enemy_sprites.update(self.world_shift)
-		#self.enemy_follow()
+		
+		self.enemy_collision()
+		
+		self.enemy_sprites.update(self.world_shift, self.player.sprite)
 		self.enemy_sprites.draw(self.display_surface)
 
 		self.dust_sprite.update(self.world_shift)
@@ -213,18 +211,9 @@ class Level:
 		self.get_player_on_ground()
 		self.vertical_movement_collision()
 		self.create_landing_dust()
-		self.enemy_collision()
 
 		self.scroll_x()
+		self.health_bar.draw(self.display_surface, self.player.sprite.hp)
 		self.player.draw(self.display_surface)
 		self.goal.update(self.world_shift)
 		self.goal.draw(self.display_surface)
-
-		# player
-		# self.player.update()
-		# self.horizontal_movement_collision()
-		# self.vertical_movement_collision()
-		# self.player.draw(self.display_surface)
-
-		# self.enemies.update(self.world_shift)
-		# self.enemies.draw(self.display_surface)
