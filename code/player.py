@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
 		super().__init__()
 		self.import_character_assets()
 		self.max_hp = max_hp
-		self.hp = max_hp
+		self.__hp = max_hp
 
 		self.frame_index = 0
 		self.attack_frame_index = 0
@@ -38,6 +38,12 @@ class Player(pygame.sprite.Sprite):
 		self.on_ceiling = False
 		self.on_left = False
 		self.on_right = False
+
+	# HP Abstraction
+	def get_hp(self):
+		return self.__hp
+	def set_hp(self, val):
+		self.__hp += val
 
 	def import_character_assets(self):
 		character_path = '../graphics/character/'

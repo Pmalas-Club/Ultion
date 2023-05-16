@@ -15,7 +15,7 @@ class Enemy(AnimatedTile):
 		self.status = 'attack'
 
 	def hit_attack(self, target):
-		target.hp -= self.__damage
+		target.set_hp(-self.__damage)
 
 	def idle_animation(self):
 		self.frames = import_folder('../graphics/Bandit/Idle')
@@ -33,4 +33,4 @@ class Enemy(AnimatedTile):
 		self.animation()
 		if self.status == 'attack' and self.frame_index == 4.5:
 			self.hit_attack(target)
-			target.hurt_scene = True
+			target.hurt_scene = True			

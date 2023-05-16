@@ -71,7 +71,7 @@ class Level:
 				if val == '0':
 					sprite = Player((x,y), self.display_surface, self.create_jump_particles, 100)
 					self.player.add(sprite)
-					self.health_bar = HealthBar(100, 50, sprite.hp, sprite.max_hp)
+					self.health_bar = HealthBar(100, 50, sprite.get_hp(), sprite.max_hp)
 				elif val == '1':
 					v_surface = pygame.image.load('../graphics/Icons/goal.png').convert_alpha()
 					sprite = StaticTile(tile_size, x, y, v_surface)
@@ -164,16 +164,19 @@ class Level:
 			for enemy in self.enemy_sprites.sprites():
 				if enemy.rect.colliderect(player):
 					enemy.attack_animation()
+					if player.status == 'attack' and player.attack_frame_index >= 4.5:
+						enemy.death_animation()
 				
 				if enemy.status == 'attack':
 					if (enemy.rect.centerx + 100) <= player.rect.centerx or (enemy.rect.centerx - 100) >= player.rect.centerx:
 						enemy.idle_animation()
 
-				if enemy.rect.colliderect(player) and player.status == 'attack':
-					if player.attack_frame_index >= 2:
-						enemy.death_animation()
-						if int(enemy.frame_index) == 3:
-							enemy.kill()
+				# if enemy.rect.colliderect(player) and player.status == 'attack':
+				# 	if player.attack_frame_index >= 2:
+				# 		enemy.death_animation()
+				
+				if enemy.status == 'death' and enemy.frame_index >= 9:
+					enemy.kill()
 
 	def finish(self):
 		if self.goal.sprite.rect.colliderect(self.player.sprite):
@@ -184,7 +187,7 @@ class Level:
 
 	def lose(self):
 		player = self.player.sprite
-		if player.rect.y > screen_height or player.hp < 1:
+		if player.rect.y > screen_height or player.get_hp() < 1:
 			return True
 		else:
 			return False
@@ -213,7 +216,7 @@ class Level:
 		self.create_landing_dust()
 
 		self.scroll_x()
-		self.health_bar.draw(self.display_surface, self.player.sprite.hp)
+		self.health_bar.draw(self.display_surface, self.player.sprite.get_hp())
 		self.player.draw(self.display_surface)
 		self.goal.update(self.world_shift)
 		self.goal.draw(self.display_surface)
