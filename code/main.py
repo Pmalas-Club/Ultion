@@ -35,6 +35,10 @@ wallpaper = pygame.image.load('../graphics/wallpaper/wallpaper.jpg').convert()
 wallpaper = pygame.transform.scale_by(wallpaper, 1.7)
 wallpaper_rect = wallpaper.get_rect(topleft=(0,0))
 
+# # MUSIC
+intro_game = pygame.mixer.Sound('../sounds/intro/intro.mp3')
+lagu_intro = False
+backsound = pygame.mixer.Sound('../sounds/play_scene/play_scene.mp3')
 
 while True:
 	for event in pygame.event.get():
@@ -48,10 +52,13 @@ while True:
 				level = Level(level_0,screen)
 				is_victory = False
 				is_lose = False
+				intro_game.stop()
+				backsound.play()
 			elif exit_instruction_rect.collidepoint(event.pos):
 				sys.exit()
 
 	if game_active:
+		
 		level.run()
 		is_victory = level.finish()
 		is_lose = level.lose()
@@ -62,9 +69,14 @@ while True:
 		screen.blit(title, title_rect)
 		if is_victory:
 			screen.blit(victory, victory_rect)
+			backsound.stop()
 		elif is_lose:
 			screen.blit(lose, lose_rect)
-
+			backsound.stop()
+		
+		if not lagu_intro:
+			intro_game.play(-1)
+			lagu_intro = True
 		screen.blit(start_instruction, start_instruction_rect)
 		screen.blit(exit_instruction, exit_instruction_rect)
 

@@ -12,7 +12,7 @@ class Level:
 		# level setup
 		self.display_surface = surface 
 		self.world_shift = 0
-		self.current_x = 0
+		self._current_x = 0
 
 		# player
 		player_layout = import_csv_layout(level_data['player'])
@@ -75,7 +75,7 @@ class Level:
 				elif val == '1':
 					v_surface = pygame.image.load('../graphics/Icons/goal.png').convert_alpha()
 					sprite = StaticTile(tile_size, x, y, v_surface)
-					sprite.image = pygame.transform.scale(sprite.image, (sprite.image.get_width() / 8, sprite.image.get_height() / 8))
+					sprite.image = pygame.transform.scale(sprite.image, (sprite.image.get_width(), sprite.image.get_height()))
 					self.goal.add(sprite)
 
 	def create_tile_group(self,layout,type):
@@ -93,7 +93,7 @@ class Level:
 						sprite = StaticTile(tile_size, x, y, tile_surface)
 
 					if type == 'enemy':
-						sprite = Enemy(tile_size,x,y,10)
+						sprite = Enemy(tile_size,x,y,'Bandit',10)
 
 					sprite_group.add(sprite)
 		return sprite_group
@@ -128,15 +128,15 @@ class Level:
 				if player.direction.x < 0: 
 					player.rect.left = sprite.rect.right
 					player.on_left = True
-					self.current_x = player.rect.left
+					self._current_x = player.rect.left
 				elif player.direction.x > 0:
 					player.rect.right = sprite.rect.left
 					player.on_right = True
-					self.current_x = player.rect.right
+					self._current_x = player.rect.right
 
-		if player.on_left and (player.rect.left < self.current_x or player.direction.x >= 0):
+		if player.on_left and (player.rect.left < self._current_x or player.direction.x >= 0):
 			player.on_left = False
-		if player.on_right and (player.rect.right > self.current_x or player.direction.x <= 0):
+		if player.on_right and (player.rect.right > self._current_x or player.direction.x <= 0):
 			player.on_right = False
 
 	def vertical_movement_collision(self):
@@ -164,7 +164,7 @@ class Level:
 			for enemy in self.enemy_sprites.sprites():
 				if enemy.rect.colliderect(player):
 					enemy.attack_animation()
-					if player.status == 'attack' and player.attack_frame_index >= 4.5:
+					if player.status == 'attack' and player.attack_frame_index >= 2:
 						enemy.death_animation()
 				
 				if enemy.status == 'attack':
@@ -174,7 +174,6 @@ class Level:
 				# if enemy.rect.colliderect(player) and player.status == 'attack':
 				# 	if player.attack_frame_index >= 2:
 				# 		enemy.death_animation()
-				
 				if enemy.status == 'death' and enemy.frame_index >= 9:
 					enemy.kill()
 

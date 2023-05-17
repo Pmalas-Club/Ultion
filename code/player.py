@@ -39,6 +39,13 @@ class Player(pygame.sprite.Sprite):
 		self.on_left = False
 		self.on_right = False
 
+		#load sound
+		self.jump_sound = pygame.mixer.Sound('../sounds/character/jump_1.mp3')
+		self.landing_sound = pygame.mixer.Sound('../sounds/character/landing.mp3')
+		self.attack_sound = pygame.mixer.Sound('../sounds/character/slash.mp3')
+		self.hurt_sound = pygame.mixer.Sound('../sounds/character/get hurt.mp3')
+		self.in_air = False
+
 	# HP Abstraction
 	def get_hp(self):
 		return self.__hp
@@ -110,6 +117,8 @@ class Player(pygame.sprite.Sprite):
 		if self.attack_frame_index > len(frame):
 			return True
 		image = frame[int(self.attack_frame_index)]
+		if self.attack_frame_index == 1.05:
+			self.attack_sound.play()
 		if self.facing_right:
 			self.image = image
 		else:
@@ -117,6 +126,10 @@ class Player(pygame.sprite.Sprite):
 			self.image = flipped_image
 
 		self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+		
+		# if self.attack_frame_index >= 1:
+		# 	self.attack_sound.play()
+
 		return False
 
 	def hurt_animation(self, frame):
@@ -124,6 +137,8 @@ class Player(pygame.sprite.Sprite):
 		if self.hurt_frame_index > len(frame):
 			return True
 		image = frame[int(self.hurt_frame_index)]
+		if self.hurt_frame_index == 0.3:
+			self.hurt_sound.play()
 		if self.facing_right:
 			self.image = image
 		else:
@@ -188,10 +203,18 @@ class Player(pygame.sprite.Sprite):
 
 	def jump(self):
 		self.direction.y = self.jump_speed
+		self.jump_sound.play()
+		self.in_air = True
+
 
 	def update(self):
 		self.get_input()
 		self.get_status()
+
+		#saat landing
+		if self.in_air and self.on_ground:
+			self.landing_sound.play()
+			self.in_air = False
 		if self.attack_scene:
 			self.status = 'attack'
 		self.animate()
