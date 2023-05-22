@@ -1,7 +1,7 @@
 import pygame, sys
 from settings import screen_width, screen_height
 from level import Level
-from game_data import level_0
+from game_data import *
 
 # Pygame setup
 pygame.init()
@@ -10,11 +10,18 @@ clock = pygame.time.Clock()
 game_active = False
 is_victory = False
 is_lose = False
+levels = [level_0, level_1, level_2]
+level_index = 0
 
 # INTRO
 title_font = pygame.font.Font('../font/Pixeltype.ttf', 100)
 title = title_font.render('ULTION', False, 'lightblue')
 title_rect = title.get_rect(center=(400,300))
+
+
+class Game:
+    def __init__(self) -> None:
+        pass
 
 instruction_font = pygame.font.Font('../font/Pixeltype.ttf', 50)
 
@@ -39,7 +46,7 @@ wallpaper_rect = wallpaper.get_rect(topleft=(0,0))
 intro_game = pygame.mixer.Sound('../sounds/intro/intro.mp3')
 lagu_intro = False
 backsound = pygame.mixer.Sound('../sounds/play_scene/play_scene.mp3')
-
+    
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -49,7 +56,7 @@ while True:
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			if start_instruction_rect.collidepoint(event.pos):
 				game_active = True
-				level = Level(level_0,screen)
+				level = Level(levels[level_index],screen)
 				is_victory = False
 				is_lose = False
 				intro_game.stop()
@@ -58,11 +65,16 @@ while True:
 				sys.exit()
 
 	if game_active:
-		
 		level.run()
 		is_victory = level.finish()
 		is_lose = level.lose()
-		if is_victory or is_lose:
+		if is_victory:
+			if level_index == len(levels)-1:
+				game_active = False
+			else:
+				level_index += 1
+				level = Level(levels[level_index],screen)
+		if is_lose:
 			game_active = False
 	else:
 		screen.blit(wallpaper,wallpaper_rect)
