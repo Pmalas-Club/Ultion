@@ -32,6 +32,10 @@ class Level:
 		enemy_layout = import_csv_layout(level_data['enemy'])
 		self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
 
+		bg_layout = import_csv_layout(level_data['bg'])
+		self.bg_sprites = self.create_tile_group(bg_layout, 'bg')		
+		
+		
 		# background
 		self.bg_shift = 0
 		bg = pygame.image.load('../graphics/Background/background.png').convert()
@@ -91,6 +95,11 @@ class Level:
 						terrain_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy_-_TileSet_edited.png')
 						tile_surface = terrain_tile_list[int(val)]
 						sprite = StaticTile(tile_size, x, y, tile_surface)
+      
+					if type == 'bg':
+						bg_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Background.png')
+						bg_surface = bg_tile_list[int(val)]
+						sprite = StaticTile(tile_size, x, y, bg_surface)
 
 					if type == 'enemy':
 						sprite = Enemy(tile_size,x,y,'Bandit',10)
@@ -195,6 +204,9 @@ class Level:
 		# level tiles
 		self.bg_update()
 		self.display_surface.blit(self.bg, self.bg_rect)
+
+		self.bg_sprites.update(self.world_shift)
+		self.bg_sprites.draw(self.display_surface)
 
 		self.terrain_sprites.update(self.world_shift)
 		self.terrain_sprites.draw(self.display_surface)
