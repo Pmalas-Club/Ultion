@@ -5,8 +5,6 @@ class Player(pygame.sprite.Sprite):
 	def __init__(self,pos,surface,create_jump_particles, max_hp):
 		super().__init__()
 		self.import_character_assets()
-		self.max_hp = max_hp
-		self.__hp = max_hp
 
 		self.frame_index = 0
 		self.attack_frame_index = 0
@@ -45,12 +43,6 @@ class Player(pygame.sprite.Sprite):
 		self.attack_sound = pygame.mixer.Sound('../sounds/character/slash.mp3')
 		self.hurt_sound = pygame.mixer.Sound('../sounds/character/get hurt.mp3')
 		self.in_air = False
-
-	# HP Abstraction
-	def get_hp(self):
-		return self.__hp
-	def set_hp(self, val):
-		self.__hp += val
 
 	def import_character_assets(self):
 		character_path = '../graphics/character/'

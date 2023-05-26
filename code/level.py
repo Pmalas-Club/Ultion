@@ -5,10 +5,9 @@ from player import Player
 from particles import ParticleEffect
 from enemy import Enemy
 from support import import_csv_layout, import_cut_graphics
-from ui import HealthBar
 
 class Level:
-	def __init__(self,level_data,surface):
+	def __init__(self,level_data,surface,get_health,set_health):
 		# level setup
 		self.display_surface = surface 
 		self.world_shift = 0
@@ -17,6 +16,8 @@ class Level:
 		# player
 		player_layout = import_csv_layout(level_data['player'])
 		self.player = pygame.sprite.GroupSingle()
+		self.get_health = get_health
+		self.set_health = set_health
 		self.goal = pygame.sprite.GroupSingle()
 		self.player_setup(player_layout)
 
@@ -34,8 +35,7 @@ class Level:
 
 		bg_layout = import_csv_layout(level_data['bg'])
 		self.bg_sprites = self.create_tile_group(bg_layout, 'bg')		
-		
-		
+
 		# background
 		self.bg_shift = 0
 		bg = pygame.image.load('../graphics/Background/background.png').convert()
@@ -75,7 +75,7 @@ class Level:
 				if val == '0':
 					sprite = Player((x,y), self.display_surface, self.create_jump_particles, 100)
 					self.player.add(sprite)
-					self.health_bar = HealthBar(100, 50, sprite.get_hp(), sprite.max_hp)
+					#self.health_bar = HealthBar(100, 50, sprite.get_hp(), sprite.max_hp)
 				elif val == '1':
 					v_surface = pygame.image.load('../graphics/Icons/goal.png').convert_alpha()
 					sprite = StaticTile(tile_size, x, y, v_surface)
@@ -102,7 +102,7 @@ class Level:
 						sprite = StaticTile(tile_size, x, y, bg_surface)
 
 					if type == 'enemy':
-						sprite = Enemy(tile_size,x,y,'Bandit',10)
+						sprite = Enemy(tile_size,x,y,'Bandit',5)
 
 					sprite_group.add(sprite)
 		return sprite_group
@@ -195,7 +195,7 @@ class Level:
 
 	def lose(self):
 		player = self.player.sprite
-		if player.rect.y > screen_height or player.get_hp() < 1:
+		if player.rect.y > screen_height or self.get_health() < 1:
 			return True
 		else:
 			return False
@@ -213,7 +213,7 @@ class Level:
 		
 		self.enemy_collision()
 		
-		self.enemy_sprites.update(self.world_shift, self.player.sprite)
+		self.enemy_sprites.update(self.world_shift, self.player.sprite, self.set_health)
 		self.enemy_sprites.draw(self.display_surface)
 
 		self.dust_sprite.update(self.world_shift)
@@ -227,7 +227,7 @@ class Level:
 		self.create_landing_dust()
 
 		self.scroll_x()
-		self.health_bar.draw(self.display_surface, self.player.sprite.get_hp())
+		#self.health_bar.draw(self.display_surface, self.player.sprite.get_hp())
 		self.player.draw(self.display_surface)
 		self.goal.update(self.world_shift)
 		self.goal.draw(self.display_surface)

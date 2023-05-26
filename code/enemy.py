@@ -10,14 +10,13 @@ class Enemy(AnimatedTile):
 			self.fix_pos_x = x 
 			self.status = 'idle'
 			self.__damage = damage # private
-			
 
 	def attack_animation(self):
 		self.frames = import_folder(f'../graphics/{self.character}/Attack')
 		self.status = 'attack'
 
-	def hit_attack(self, target):
-		target.set_hp(-self.__damage)
+	def hit_attack(self, set_health):
+		set_health(-self.__damage)
 
 	def idle_animation(self):
 		self.frames = import_folder(f'../graphics/{self.character}/Idle')
@@ -28,10 +27,10 @@ class Enemy(AnimatedTile):
 		self.status = 'death'
 
 	# Overriding polymorphism to AnimatedTile
-	def update(self, shift, target):
+	def update(self, shift, target, set_health):
 		self.rect.x += shift
 		self.fix_pos_x += shift
 		self.animation()
 		if self.status == 'attack' and self.frame_index == 4.5:
-			self.hit_attack(target)
+			self.hit_attack(set_health)
 			target.hurt_scene = True			
