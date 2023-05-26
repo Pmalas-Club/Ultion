@@ -85,6 +85,7 @@ class Ultion:
 			if self.is_victory:
 				if self.level_index == len(levels)-1:
 					self.game_active = False
+					self.__health = 100
 				else:
 					self.__health = self.level.get_health()
 					self.level_index += 1
@@ -92,6 +93,8 @@ class Ultion:
 					self.level = Level(levels[self.level_index],screen,self.get_health,self.set_health)
 			if self.is_lose:
 				self.game_active = False
+				self.__health = 100
+				self.score = 0
 		else:
 			screen.blit(wallpaper,wallpaper_rect)
 			screen.blit(title, title_rect)
