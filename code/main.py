@@ -39,7 +39,7 @@ wallpaper = pygame.transform.scale_by(wallpaper, 1.7)
 wallpaper_rect = wallpaper.get_rect(topleft=(0,0))
 
 # # MUSIC
-intro_game = pygame.mixer.Sound('../sounds/intro/intro.mp3')
+intro_game = pygame.mixer.Sound('../sounds/play_scene/play_scene.mp3')
 lagu_intro = False
 backsound = pygame.mixer.Sound('../sounds/play_scene/play_scene.mp3')
 	

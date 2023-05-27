@@ -34,7 +34,10 @@ class Level:
 		self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
 
 		bg_layout = import_csv_layout(level_data['bg'])
-		self.bg_sprites = self.create_tile_group(bg_layout, 'bg')		
+		self.bg_sprites = self.create_tile_group(bg_layout, 'bg')	
+  	
+		background_layout = import_csv_layout(level_data['background'])
+		self.background_sprites = self.create_tile_group(background_layout, 'background')		
 
 		# background
 		self.bg_shift = 0
@@ -101,8 +104,14 @@ class Level:
 						bg_surface = bg_tile_list[int(val)]
 						sprite = StaticTile(tile_size, x, y, bg_surface)
 
+					if type == 'background':
+						background_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy - BackgroundDecoration1.png')
+						background_surface = background_tile_list[int(val)]
+						sprite = StaticTile(tile_size, x, y, background_surface)
+
 					if type == 'enemy':
 						sprite = Enemy(tile_size,x,y,'Bandit',5)
+
 
 					sprite_group.add(sprite)
 		return sprite_group
@@ -205,9 +214,13 @@ class Level:
 		self.bg_update()
 		self.display_surface.blit(self.bg, self.bg_rect)
 
+		self.background_sprites.update(self.world_shift)
+		self.background_sprites.draw(self.display_surface)
+
 		self.bg_sprites.update(self.world_shift)
 		self.bg_sprites.draw(self.display_surface)
 
+  
 		self.terrain_sprites.update(self.world_shift)
 		self.terrain_sprites.draw(self.display_surface)
 		
