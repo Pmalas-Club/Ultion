@@ -33,6 +33,9 @@ victory_rect = victory.get_rect(center=(int(screen_width / 2),120))
 lose = title_font.render('YOU LOSE!', False, 'white')
 lose_rect = victory.get_rect(center=(int(screen_width / 2),120))
 
+level_status = ['Level 1', 'Level 2', 'level 3']
+
+
 # WALLPAPER
 wallpaper = pygame.image.load('../graphics/wallpaper/wallpaper.jpg').convert()
 wallpaper = pygame.transform.scale_by(wallpaper, 1.7)
@@ -80,6 +83,7 @@ class Ultion:
 		if self.game_active:
 			self.level.run()
 			self.health_bar.draw(screen,self.__health)
+			
 			self.is_victory = self.level.finish()
 			self.is_lose = self.level.lose()
 			if self.is_victory:

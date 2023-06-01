@@ -33,17 +33,14 @@ class Level:
 		enemy_layout = import_csv_layout(level_data['enemy'])
 		self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemy')
 
-		bg_layout = import_csv_layout(level_data['bg'])
-		self.bg_sprites = self.create_tile_group(bg_layout, 'bg')	
-  	
-		background_layout = import_csv_layout(level_data['background'])
-		self.background_sprites = self.create_tile_group(background_layout, 'background')		
-
 		# background
 		self.bg_shift = 0
 		bg = pygame.image.load('../graphics/Background/background.png').convert()
 		self.bg = pygame.transform.scale(bg, (bg.get_width() * 4, bg.get_height() * 2))
 		self.bg_rect = bg.get_rect(topleft=(0, 0))
+
+		self.map  = pygame.image.load(level_data['bg']).convert_alpha()
+		self.map_rect = self.map.get_rect(topleft=(0, 0))		
 
 		self.collidable_sprites = self.terrain_sprites.sprites()
 
@@ -95,19 +92,8 @@ class Level:
 					y = int(row_index * tile_size)
 
 					if type == 'terrain':
-						terrain_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy_-_TileSet_edited.png')
-						tile_surface = terrain_tile_list[int(val)]
+						tile_surface = pygame.image.load('../graphics/tiles/collision.png').convert_alpha()
 						sprite = StaticTile(tile_size, x, y, tile_surface)
-      
-					if type == 'bg':
-						bg_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Background.png')
-						bg_surface = bg_tile_list[int(val)]
-						sprite = StaticTile(tile_size, x, y, bg_surface)
-
-					if type == 'background':
-						background_tile_list = import_cut_graphics('../graphics/tiles/Mossy Tileset/Mossy - BackgroundDecoration1.png')
-						background_surface = background_tile_list[int(val)]
-						sprite = StaticTile(tile_size, x, y, background_surface)
 
 					if type == 'enemy':
 						sprite = Enemy(tile_size,x,y,'Bandit',5)
@@ -136,6 +122,9 @@ class Level:
 
 	def bg_update(self):
 		self.bg_rect.x += self.bg_shift
+
+	def map_update(self):
+		self.map_rect.x += self.world_shift
 
 	def horizontal_movement_collision(self):
 		player = self.player.sprite
@@ -214,16 +203,12 @@ class Level:
 		self.bg_update()
 		self.display_surface.blit(self.bg, self.bg_rect)
 
-		self.background_sprites.update(self.world_shift)
-		self.background_sprites.draw(self.display_surface)
-
-		self.bg_sprites.update(self.world_shift)
-		self.bg_sprites.draw(self.display_surface)
-
-  
 		self.terrain_sprites.update(self.world_shift)
 		self.terrain_sprites.draw(self.display_surface)
-		
+
+		self.map_update()
+		self.display_surface.blit(self.map, self.map_rect)
+
 		self.enemy_collision()
 		
 		self.enemy_sprites.update(self.world_shift, self.player.sprite, self.set_health)
