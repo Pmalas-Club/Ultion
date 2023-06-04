@@ -142,21 +142,20 @@ class Ultion:
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.game_active:
-                    # If the game is active, handle game-related events
-                    # self.level.handle_event(event)
-                    print()
-                else:
-                    # If the game is not active, check for button clicks
-                    if start_instruction_rect.collidepoint(event.pos):
-                        self.game_active = True
-                        self.level = Level(levels[self.level_index], screen, self.get_health, self.set_health)
-                        self.is_victory = False
-                        self.is_lose = False
-                        intro_game.stop()
-                        backsound.play()
-                    elif exit_instruction_rect.collidepoint(event.pos):
-                        sys.exit()
+                # if self.game_active:
+                #     # If the game is active, handle game-related events
+                #     # self.level.handle_event(event)
+                # else:
+                # If the game is not active, check for button clicks
+                if start_instruction_rect.collidepoint(event.pos):
+                    self.game_active = True
+                    self.level = Level(levels[self.level_index], screen, self.get_health, self.set_health)
+                    self.is_victory = False
+                    self.is_lose = False
+                    intro_game.stop()
+                    backsound.play()
+                elif exit_instruction_rect.collidepoint(event.pos):
+                    sys.exit()
 
         if self.game_active:
             self.level.run()
