@@ -1,4 +1,5 @@
-import pygame 
+import pygame
+
 from tiles import StaticTile
 from settings import tile_size, screen_width, screen_height
 from player import Player
@@ -35,12 +36,18 @@ class Level:
 
 		# background
 		self.bg_shift = 0
-		bg = pygame.image.load('../graphics/Background/background.png').convert()
-		self.bg = pygame.transform.scale(bg, (bg.get_width() * 4, bg.get_height() * 2))
+		bg = pygame.image.load(level_data['background']).convert()
+		if level_data['level'] == 1 or level_data['level'] == 3:
+			self.bg = pygame.transform.scale(bg, (bg.get_width() * 2.2, bg.get_height() * 3))
+		if level_data['level'] == 2:
+			self.bg = pygame.transform.scale(bg, (bg.get_width() / 1.5, bg.get_height() / 1.42))
 		self.bg_rect = bg.get_rect(topleft=(0, 0))
 
 		self.map  = pygame.image.load(level_data['bg']).convert_alpha()
-		self.map_rect = self.map.get_rect(topleft=(0, 0))		
+		self.map_rect = self.map.get_rect(topleft=(0, 0))
+  
+		self.over  = pygame.image.load(level_data['over']).convert_alpha()
+		self.over_rect = self.over.get_rect(topleft=(0, 0))
 
 		self.collidable_sprites = self.terrain_sprites.sprites()
 
@@ -125,6 +132,8 @@ class Level:
 
 	def map_update(self):
 		self.map_rect.x += self.world_shift
+	def over_update(self):
+		self.over_rect.x += self.world_shift
 
 	def horizontal_movement_collision(self):
 		player = self.player.sprite
@@ -209,6 +218,7 @@ class Level:
 		self.map_update()
 		self.display_surface.blit(self.map, self.map_rect)
 
+
 		self.enemy_collision()
 		
 		self.enemy_sprites.update(self.world_shift, self.player.sprite, self.set_health)
@@ -224,8 +234,10 @@ class Level:
 		self.vertical_movement_collision()
 		self.create_landing_dust()
 
-		self.scroll_x()
 		#self.health_bar.draw(self.display_surface, self.player.sprite.get_hp())
 		self.player.draw(self.display_surface)
 		self.goal.update(self.world_shift)
+		self.over_update()
+		self.display_surface.blit(self.over, self.over_rect)
+		self.scroll_x()
 		self.goal.draw(self.display_surface)
